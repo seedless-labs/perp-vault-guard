@@ -1,0 +1,39 @@
+  perp-vault-guard on devnet
+    Drift devnet SOL-PERP oracle: $80.0167
+    init_vault
+      https://explorer.solana.com/tx/wJK31jJv28iDLgHUMGZB1RhbhV27J3revPnfNX2RHfZGQfE23jqQVVf1W1Ns44U57D1FXzqgFAKGcFSbT697cvC?cluster=devnet
+    ✔ owner creates vault: SOL-PERP only, 3x max, 2,500 USDC per order, 1% price band (1195ms)
+    deposit 1,000 USDC
+      https://explorer.solana.com/tx/6v8Ucm8sjgUdgnaZcVkoCXt5nmhwBbMKxPv8oNegzHmYQRZgdFuGrLCa2AAg6hwNAx8zBZM5a7y8tHv2XmUhAQU?cluster=devnet
+    ✔ owner deposits 1,000 USDC as collateral (1295ms)
+    open 10 SOL long
+      https://explorer.solana.com/tx/5d3aLFELyGs1A5Tq2f3p6afNZKxEeGZjUK6L6EFCU8eadhZEKb4XxYG5EFMh9MAXpBbPi3GjjaMmKkfBGSbciiRx?cluster=devnet
+    ✔ manager opens 10 SOL long (~805 USDC): allowed (1323ms)
+    rejected: OrderTooLarge
+    ✔ manager tries 40 SOL in one order (~3,200 USDC > 2,500 cap): rejected (328ms)
+    rejected: LeverageExceeded
+    ✔ manager tries 28 SOL more (total ~3,060 > 3x of 1,000): rejected (327ms)
+    rejected: MarketNotAllowed
+    ✔ manager tries BTC-PERP (not on the allow list): rejected (324ms)
+    rejected: PriceOutOfBand
+    ✔ manager sets a limit 5% off the oracle: rejected (318ms)
+    rejected: NotManager
+    ✔ a key that is not the manager tries to trade: rejected (328ms)
+    kill
+      https://explorer.solana.com/tx/4KY3iWCQE4EGEgSNoggYa9hwfzojrBiVJTvsC4PyXLaVgteq6SydG9jN98aQvkaXx3KEzhCrWAYRPNvsJzytq2VV?cluster=devnet
+    rejected: VaultKilled
+    ✔ owner hits the kill switch; manager tries to open: rejected (1810ms)
+    close 10 SOL (reduce-only)
+      https://explorer.solana.com/tx/kC8ae3W3Joy83VxXnPsYSXnusi8M1ZbXXcu2Buj6YSkFLfs4MAH6CFAfKi2PjRkzyj38ojygdpBD5ztVBRtv4Rn?cluster=devnet
+    ✔ after the kill, manager can still close (reduce-only): allowed (1381ms)
+    revoke_manager
+      https://explorer.solana.com/tx/2BmqQU8NVcBQ8LPsEuDUvK72QVE6BSiLn2C8vhY6BfSPqpTPNhsiReew68QjcdFTqjicwy1DhGAMncicTRbH4Ygb?cluster=devnet
+    rejected: NotManager
+    ✔ owner revokes the manager; manager can not even close: rejected (1292ms)
+
+    vault 5sestrYhi6TdSQ7QJYotqpjcdH5Xx5mSGLSLyTFvDMai
+    https://explorer.solana.com/address/5sestrYhi6TdSQ7QJYotqpjcdH5Xx5mSGLSLyTFvDMai?cluster=devnet
+
+
+  11 passing (16s)
+
