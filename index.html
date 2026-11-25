@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>perp-vault-guard: devnet run</title>
+<meta name="description" content="A USDC vault on Solana whose manager can trade perps only inside limits the owner sets on chain. Devnet run, 11 of 11 passing.">
+<style>
+  :root { --bg:#0d0f12; --panel:#15181d; --line:#262a31; --text:#e7e9ec; --muted:#8b929c; --ok:#3ecf8e; --no:#f2706b; --accent:#9b8cff; }
+  @media (prefers-color-scheme: light) { :root { --bg:#fafafa; --panel:#fff; --line:#e4e6ea; --text:#15181d; --muted:#5d6570; --ok:#13965f; --no:#c9413b; --accent:#5b48d6; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+  main { max-width:860px; margin:0 auto; padding:48px 20px 80px; }
+  h1 { font-size:28px; margin:0 0 8px; letter-spacing:-.01em; }
+  h2 { font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:40px 0 12px; font-weight:600; }
+  p { margin:0 0 12px; }
+  .lede { color:var(--muted); font-size:17px; max-width:640px; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  code, .mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; }
+  .links { display:flex; gap:16px; flex-wrap:wrap; margin-top:16px; }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; }
+  .chip { border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:4px 12px; font-size:13px; }
+  .score { display:inline-flex; align-items:center; gap:8px; font-weight:600; color:var(--ok); margin-top:4px; }
+  ol.run { list-style:none; margin:0; padding:0; border:1px solid var(--line); border-radius:10px; background:var(--panel); overflow:hidden; }
+  ol.run li { display:grid; grid-template-columns:28px 1fr auto; gap:12px; align-items:baseline; padding:12px 16px; border-top:1px solid var(--line); }
+  ol.run li:first-child { border-top:0; }
+  .n { color:var(--muted); font-variant-numeric:tabular-nums; }
+  .who { color:var(--muted); font-size:13px; }
+  .res { text-align:right; white-space:nowrap; font-size:13px; }
+  .ok { color:var(--ok); } .no { color:var(--no); }
+  table { width:100%; border-collapse:collapse; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--panel); }
+  td { padding:10px 16px; border-top:1px solid var(--line); vertical-align:top; }
+  tr:first-child td { border-top:0; }
+  td:first-child { color:var(--muted); width:38%; }
+  .note { border-left:3px solid var(--accent); padding:4px 0 4px 14px; color:var(--muted); }
+  footer { margin-top:48px; color:var(--muted); font-size:13px; }
+  @media (max-width:560px) { ol.run li { grid-template-columns:22px 1fr; } .res { grid-column:2; text-align:left; } td:first-child { width:auto; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>perp-vault-guard</h1>
+  <p class="lede">A USDC vault on Solana whose manager can trade perps, but only inside limits the owner sets on chain. The manager never holds the funds or the perp account key. The vault PDA signs every order, and only after the policy checks pass.</p>
+  <div class="links">
+    <a href="https://github.com/seedless-labs/perp-vault-guard">Repo</a>
+    <a href="https://github.com/seedless-labs/perp-vault-guard/blob/main/DESIGN.md">Design notes and known gaps</a>
+    <a href="https://github.com/seedless-labs/perp-vault-guard/blob/main/docs/devnet-run.txt">Raw test output</a>
+  </div>
+
+  <h2>Devnet run</h2>
+  <div class="score">11 of 11 passing</div>
+  <p class="who" style="margin-top:6px">Policy for the run:</p>
+  <div class="chips">
+    <span class="chip">SOL-PERP only</span>
+    <span class="chip">max 3x leverage</span>
+    <span class="chip">max 2,500 USDC per order</span>
+    <span class="chip">1% price band</span>
+    <span class="chip">1,000 USDC collateral</span>
+    <span class="chip">SOL $80.02 (Drift devnet oracle)</span>
+  </div>
+
+  <h2>Every limit, tried for real</h2>
+  <ol class="run">
+    <li><span class="n">1</span><span>Owner creates the vault<br><span class="who">owner</span></span><span class="res ok"><a href="https://explorer.solana.com/tx/wJK31jJv28iDLgHUMGZB1RhbhV27J3revPnfNX2RHfZGQfE23jqQVVf1W1Ns44U57D1FXzqgFAKGcFSbT697cvC?cluster=devnet">tx</a></span></li>
+    <li><span class="n">2</span><span>Owner deposits 1,000 USDC<br><span class="who">owner</span></span><span class="res ok"><a href="https://explorer.solana.com/tx/6v8Ucm8sjgUdgnaZcVkoCXt5nmhwBbMKxPv8oNegzHmYQRZgdFuGrLCa2AAg6hwNAx8zBZM5a7y8tHv2XmUhAQU?cluster=devnet">tx</a></span></li>
+    <li><span class="n">3</span><span>Opens a 10 SOL long (~805 USDC)<br><span class="who">manager</span></span><span class="res ok">allowed · <a href="https://explorer.solana.com/tx/5d3aLFELyGs1A5Tq2f3p6afNZKxEeGZjUK6L6EFCU8eadhZEKb4XxYG5EFMh9MAXpBbPi3GjjaMmKkfBGSbciiRx?cluster=devnet">tx</a></span></li>
+    <li><span class="n">4</span><span>Sends 40 SOL in one order (~3,200 USDC, above the 2,500 cap)<br><span class="who">manager</span></span><span class="res no mono">OrderTooLarge</span></li>
+    <li><span class="n">5</span><span>Adds 28 SOL (total ~3,060, above 3x of 1,000)<br><span class="who">manager</span></span><span class="res no mono">LeverageExceeded</span></li>
+    <li><span class="n">6</span><span>Tries BTC-PERP, which is not on the allow list<br><span class="who">manager</span></span><span class="res no mono">MarketNotAllowed</span></li>
+    <li><span class="n">7</span><span>Sets a limit price 5% off the oracle<br><span class="who">manager</span></span><span class="res no mono">PriceOutOfBand</span></li>
+    <li><span class="n">8</span><span>A key that is not the manager tries to trade<br><span class="who">stranger</span></span><span class="res no mono">NotManager</span></li>
+    <li><span class="n">9</span><span>Owner turns on the kill switch, then the manager tries to open<br><span class="who">owner, then manager</span></span><span class="res"><a href="https://explorer.solana.com/tx/4KY3iWCQE4EGEgSNoggYa9hwfzojrBiVJTvsC4PyXLaVgteq6SydG9jN98aQvkaXx3KEzhCrWAYRPNvsJzytq2VV?cluster=devnet">kill tx</a> · <span class="no mono">VaultKilled</span></span></li>
+    <li><span class="n">10</span><span>After the kill, closes the 10 SOL (reduce-only)<br><span class="who">manager</span></span><span class="res ok">allowed · <a href="https://explorer.solana.com/tx/kC8ae3W3Joy83VxXnPsYSXnusi8M1ZbXXcu2Buj6YSkFLfs4MAH6CFAfKi2PjRkzyj38ojygdpBD5ztVBRtv4Rn?cluster=devnet">tx</a></span></li>
+    <li><span class="n">11</span><span>Owner revokes the manager, then the manager tries to close<br><span class="who">owner, then manager</span></span><span class="res"><a href="https://explorer.solana.com/tx/2BmqQU8NVcBQ8LPsEuDUvK72QVE6BSiLn2C8vhY6BfSPqpTPNhsiReew68QjcdFTqjicwy1DhGAMncicTRbH4Ygb?cluster=devnet">revoke tx</a> · <span class="no mono">NotManager</span></span></li>
+  </ol>
+  <p class="who" style="margin-top:10px">Rejected orders are stopped in simulation, so they leave no tx on chain. The error names come from the program, and the test asserts each one.</p>
+
+  <h2>On chain</h2>
+  <table>
+    <tr><td>perp-vault-guard program</td><td><a class="mono" href="https://explorer.solana.com/address/Fcfy2AqyC4Yrus9NxmShBZcgxzYvzdz3rWjz17rZy5x?cluster=devnet">Fcfy2Aqy…7rZy5x</a></td></tr>
+    <tr><td>Demo vault account</td><td><a class="mono" href="https://explorer.solana.com/address/5sestrYhi6TdSQ7QJYotqpjcdH5Xx5mSGLSLyTFvDMai?cluster=devnet">5sestrYh…vDMai</a></td></tr>
+    <tr><td>perp-mock (test double)</td><td><a class="mono" href="https://explorer.solana.com/address/V8Dip6eZLe2UYU6LSYitwWXrqHG2k2y9Muhd92RbQYW?cluster=devnet">V8Dip6eZ…RbQYW</a></td></tr>
+  </table>
+
+  <h2>About the mock</h2>
+  <p class="note">Drift v2's devnet deployment does not accept deposits or orders right now: its market accounts were never migrated (SpotMarket 776 bytes on chain vs 808 in the IDL, PerpMarket 1216 vs 1240), so every deposit fails with 6087 and every order with 6078. The repo includes a labelled mock with Drift's interface for the four instructions the vault calls: same names, account order, arg layout, PDA seeds and oracle offset. The vault program is the same build either way and points at Drift on mainnet. The SOL price is read live from Drift's devnet market.</p>
+
+  <footer>Seedless Labs · devnet only, unaudited · <a href="https://github.com/seedless-labs/perp-vault-guard">github.com/seedless-labs/perp-vault-guard</a></footer>
+</main>
+</body>
+</html>
