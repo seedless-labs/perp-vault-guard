@@ -2,6 +2,8 @@
 
 A USDC vault on Solana whose manager can trade perps, but only inside limits the owner sets on chain.
 
+**Demo page:** https://seedless-labs.github.io/perp-vault-guard (the devnet run, step by step, with explorer links)
+
 The manager never holds the funds and never holds the key to the perp account. The vault PDA is the perp account's authority, and the only way to make it sign an order is through this program. Each order is checked against the policy before the program signs.
 
 | Limit | Enforced in |
